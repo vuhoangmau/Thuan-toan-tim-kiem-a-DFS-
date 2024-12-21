@@ -1,0 +1,113 @@
+import sys
+
+class Node :
+    def __init__(self, index = -1, g = 0, f = 0, h = 0, color = 0, parent = -1) :
+    self.index = index  # Số thứ tự
+    self.g = g          # Khoảng cách từ đỉnh bắt đầu đến đỉnh hiện tại
+    self.f = f          # f = h + g
+    self.h = h          # Heuristic(ước tính chi phí còn lại)
+    self.color = color  # 0: chưa duyệt, 1 : trong Open, 2 : trong Close
+    self.parent = parent
+
+    def read_input_file1(filename) :
+    with open(filename, 'r') as file :
+n = int(file.readline().strip())
+b = list(map(int, file.readline().split()))
+return n, b
+
+def read_input_file2(filename) :
+    with open(filename, 'r') as file :
+n, start, finish = map(int, file.readline().split())
+a = [list(map(int, file.readline().split())) for _ in range(n)]
+return n, start, finish, a
+
+def init(n, b) :
+    nodes = [Node(i, b[i], b[i], 0, 0, -1) for i in range(n)]
+    return nodes
+
+    def find_point(nodes, index) :
+    for i, node in enumerate(nodes) :
+        if node.index == index :
+            return i
+            return -1
+
+            def find_min(Open) :
+            min_index = -1
+            min_f = sys.maxsize
+            for i, node in enumerate(Open) :
+                if node.color == 1 and node.f < min_f :
+                    min_f = node.f
+                    min_index = i
+                    return min_index
+
+                    def dfs(current, finish, n, nodes, a, path, found) :
+                    if current == finish :
+                        found[0] = True
+                        return
+
+                        nodes[current].color = 1  # Mark the node as visited
+                        for i in range(n) :
+                            if a[current][i] != 0 and nodes[i].color == 0 : # If there's an edge and the node is not visited
+                                nodes[i].parent = current
+                                path.append(i)
+                                dfs(i, finish, n, nodes, a, path, found)
+                                if found[0]:
+return  # Stop if found
+path.pop()  # Backtrack if not found
+
+def a_star_with_dfs(a, n, start, finish, b) :
+    nodes = init(n, b)
+    Open = [None] * n
+    Close = [None] * n
+    open_count = 0
+
+    Open[open_count] = nodes[start]
+    Open[open_count].color = 1
+    Open[open_count].f = Open[open_count].h + Open[open_count].g
+    open_count += 1
+
+    # A * Heuristic calculation
+    while open_count > 0:
+k = find_min(Open)
+if k == -1 :
+    break
+
+    Open[k].color = 2  # Move to Close
+    Close[k] = Open[k]
+    nodes[find_point(nodes, Open[k].index)].color = 2
+
+    if find_point(nodes, Open[k].index) == finish:
+break
+
+for i in range(n) :
+    if a[find_point(nodes, Open[k].index)][i] != 0 and nodes[i].color == 0 :
+        Open[open_count] = nodes[i]
+        Open[open_count].color = 1
+        Open[open_count].h = a[find_point(nodes, Open[k].index)][i] + Open[k].h  # Heuristic h
+        Open[open_count].f = Open[open_count].g + Open[open_count].h
+        Open[open_count].parent = find_point(nodes, Open[k].index)
+        nodes[i].color = 1
+        open_count += 1
+
+        # After calculating heuristics, perform DFS
+        path = [start]
+        found = [False]
+        dfs(start, finish, n, nodes, a, path, found)
+
+        # Print result
+        if found[0]:
+print("Đường đi tìm thấy (DFS + A*): ", ' '.join(map(str, path)))
+        else:
+print("Không tìm thấy đường đi.")
+
+def main() :
+    n, b = read_input_file1("Input1.txt")
+    n, start, finish, a = read_input_file2("Input2.txt")
+
+    print(f"Đỉnh bắt đầu: {start}")
+    print(f"Đỉnh kết thúc: {finish}")
+
+    a_star_with_dfs(a, n, start, finish, b)
+
+    if __name__ == "__main__":
+main()
